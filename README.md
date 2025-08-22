@@ -1,69 +1,69 @@
 # IoT Blockchain Supply Chain Project
 
-Этот проект представляет собой веб-платформу для управления цепочками поставок с использованием современных технологий фронтенда, бэкенда и блокчейна. Приложение позволяет:
-- Добавлять IoT-устройства с регистрацией в блокчейне через MetaMask и смарт-контракт.
-- Просматривать список устройств и их подробные данные.
-- Получать информацию о товарах, связанных с устройствами.
-- Генерировать метки и QR-коды для товаров.
-- Подключать кошелек через библиотеку vue-connect-wallet на фронтенде.
+This project is a web platform for supply chain management using modern frontend, backend and blockchain technologies. The application allows you to:
+- Add IoT devices with registration in the blockchain via MetaMask and a smart contract.
+- View the list of devices and their detailed data.
+- Get information about products associated with devices.
+- Generate tags and QR codes for products.
+- Connect a wallet via the vue-connect-wallet library on the frontend.
 
-## Установка и запуск
+## Installation and launch
 
-### Бэкенд
+### Backend
 
-1. Перейдите в директорию `backend`:
-   ```bash
-   cd .../IoT_Blockchain_CW/backend
-   ```
-2. Создайте и активируйте виртуальное окружение (рекомендуется):
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-3. Установите зависимости:
-   ```bash
-   pip install -r requirments.txt
-   ```
-4. Запустите сервер:
-   ```bash
-   python server.py
-   ```
-   Сервер будет доступен по адресу `http://localhost:3000`.
+1. Go to the `backend` directory:
+```bash
+cd .../IoT_Blockchain_CW/backend
+```
+2. Create and activate a virtual environment (recommended):
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+3. Install dependencies:
+```bash
+pip install -r requirments.txt
+```
+4. Start the server:
+```bash
+python server.py
+```
+The server will be available at `http://localhost:3000`.
 
-### Фронтенд
+### Frontend
 
-1. Перейдите в директорию `frontend`:
-   ```bash
-   cd .../IoT_Blockchain_CW/frontend
-   ```
-2. Установите npm-зависимости:
-   ```bash
-   npm install
-   ```
-3. Запустите проект в режиме разработки:
-   ```bash
-   npm run serve
-   ```
-   Приложение будет запущено, и вы сможете открыть его в браузере по адресу, указанному в терминале (обычно `http://localhost:8080`).
+1. Go to the `frontend` directory:
+```bash
+cd .../IoT_Blockchain_CW/frontend
+```
+2. Install npm dependencies:
+```bash
+npm install
+```
+3. Run the project in development mode:
+```bash
+npm run serve
+```
+The application will be launched, and you can open it in the browser at the address specified in the terminal (usually `http://localhost:8080`).
 
-## Используемые технологии
+## Technologies used
 
-- **Фронтенд:**
-  - Vue.js и Vue Router для создания одностраничных приложений.
-  - Tailwind CSS для быстрой стилизации и создания адаптивного интерфейса.
-  - vue-connect-wallet для интеграции MetaMask в интерфейс.
-  - ethers.js для взаимодействия с Ethereum-сетью и смарт-контрактами.
+- **Frontend:**
+- Vue.js and Vue Router for creating single-page applications.
+- Tailwind CSS for quick styling and creating a responsive interface.
+- vue-connect-wallet for integrating MetaMask into the interface.
+- ethers.js for interacting with the Ethereum network and smart contracts.
 
-- **Бэкенд:**
-  - Flask с flask-cors для создания RESTful API.
-  - pyqrcode, pypng, zlib, base64 для генерации и обработки QR-кодов.
+- **Backend:**
+- Flask with flask-cors for creating RESTful API.
+- pyqrcode, pypng, zlib, base64 for generating and processing QR codes.
 
-- **Блокчейн:**
-  - Смарт-контракт (IOTContractMonitoring) для авторизации устройств и управления метками.
+- **Blockchain:**
+- Smart contract (IOTContractMonitoring) for device authorization and tag management.
 
-## Будущие планы
+## Future plans
 
-- **Перенос управления состоянием:** Рассмотреть использование Pinia для централизованного управления состоянием приложения вместо localStorage/sessionStorage.
-- **Улучшение интерфейса:** Доработка дизайна и повышение удобства использования.
-- **Оптимизация бэкенда:** Обработка ошибок, повышение производительности, а также масштабирование серверной части.
-- **Интеграция с серверными базами данных:** Переход на более надежное хранилище данных для совместного доступа пользователей и лучшей безопасности.
+- **State management migration:** Consider using Pinia for centralized application state management instead of localStorage/sessionStorage.
+- **UI improvements:** Refining the design and improving usability.
+- **Backend optimizations:** Error handling, performance improvements, and server-side scaling.
+- **Integration with backend databases:** Switching to a more reliable data storage for user sharing and better security.
