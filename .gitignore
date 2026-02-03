@@ -7,3 +7,7 @@ blockchain/node_modules/
 blockchain/.env
 
 .DS_Store
+
+# Python
+__pycache__/
+*.pyc
