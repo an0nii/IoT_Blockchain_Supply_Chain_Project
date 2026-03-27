@@ -3,4 +3,8 @@ flask-cors==3.0.10
 pyqrcode==1.2.1
 pypng==0.20220715.0
 Flask-SQLAlchemy==3.0.3
-psycopg2-binary==2.9.6
+psycopg[binary]==3.2.6
+ecdsa==0.19.0
+qrcode==7.4.2
+numpy==1.26.4
+opencv-python==4.10.0.84
