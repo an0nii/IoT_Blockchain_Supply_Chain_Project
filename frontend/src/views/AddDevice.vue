@@ -1,78 +1,94 @@
 <template>
-  <div class="max-w-md mx-auto mt-8 p-6 bg-white rounded shadow">
-    <h2 class="text-2xl font-semibold mb-4">Add Device</h2>
-    <form @submit.prevent="handleSubmit">
-      <div class="mb-4">
-        <label class="block text-gray-700">Device Name</label>
-        <input
-          type="text"
-          v-model="device.name"
-          class="w-full px-3 py-2 border rounded"
-          placeholder="Type a device name"
-          required
-        />
+  <div class="page min-h-screen bg-gradient-to-br from-amber-50 via-white to-emerald-50 px-4 py-10">
+    <div class="mx-auto max-w-2xl">
+      <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-xs uppercase tracking-[0.35em] text-emerald-600">Device Registry</p>
+          <h2 class="title mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">Add Device</h2>
+          <p class="mt-2 max-w-xl text-sm text-slate-600 sm:text-base">
+            Register a trusted IoT device and sync it with the blockchain authorization flow.
+          </p>
+        </div>
+        <div class="hidden h-14 w-14 items-center justify-center rounded-2xl bg-emerald-600 text-sm font-semibold text-white shadow-lg shadow-emerald-200/70 sm:flex">
+          IOT
+        </div>
       </div>
 
-      <div class="mb-4">
-        <label class="block text-gray-700">Device Type</label>
-        <select
-          v-model="device.type"
-          class="w-full px-3 py-2 border rounded"
-          required
-        >
-          <option value="" disabled selected>Select Device Type</option>
-          <option value="Sender">Sender</option>
-          <option value="Receiver">Receiver</option>
-        </select>
+      <div class="rounded-2xl border border-emerald-100 bg-white/80 shadow-xl shadow-emerald-100/60 backdrop-blur">
+        <form @submit.prevent="handleSubmit" class="space-y-6 p-6 sm:p-8">
+          <div>
+            <label class="text-sm font-medium text-slate-700">Device Name</label>
+            <input
+              type="text"
+              v-model="device.name"
+              class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              placeholder="Type a device name"
+              required
+            />
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-700">Device Type</label>
+            <select
+              v-model="device.type"
+              class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              required
+            >
+              <option value="" disabled selected>Select Device Type</option>
+              <option value="Sender">Sender</option>
+              <option value="Receiver">Receiver</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-700">Device Adress</label>
+            <input
+              type="text"
+              v-model="device.address"
+              class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              placeholder="Enter device address"
+              required
+            />
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-700">Description</label>
+            <textarea
+              v-model="device.description"
+              class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              placeholder="Type a description"
+              rows="4"
+            ></textarea>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <button
+              type="submit"
+              class="inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-200/70 transition hover:bg-emerald-700"
+            >
+              Save
+            </button>
+            <router-link to="/">
+              <button
+                type="button"
+                class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-200 hover:text-emerald-700"
+              >
+                Home Page
+              </button>
+            </router-link>
+          </div>
+        </form>
       </div>
 
-      <div class="mb-4">
-        <label class="block text-gray-700">Device Adress</label>
-        <input
-          type="text"
-          v-model="device.address"
-          class="w-full px-3 py-2 border rounded"
-          placeholder="Enter device address"
-          required
-        />
+      <div v-if="deviceError" class="mt-6 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        {{ deviceError }}
       </div>
-
-      <div class="mb-4">
-        <label class="block text-gray-700">Description</label>
-        <textarea
-          v-model="device.description"
-          class="w-full px-3 py-2 border rounded"
-          placeholder="Type a description"
-          rows="4"
-        ></textarea>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <button
-          type="submit"
-          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          Save
-        </button>
-        <router-link to="/">
-          <button
-            type="button"
-            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-          Home Page
-          </button>
-        </router-link>
-      </div>
-    </form>
-    <div v-if="deviceError" class="mt-4 p-2 bg-red-200 text-red-800 rounded">
-      {{ deviceError }}
     </div>
   </div>
 </template>
 
 <script>
-import { ethers, BrowserProvider } from 'ethers'
-import IOTContractMonitoring from '../../IOTContractMonitoring.json'
+import axios from 'axios'
 export default {
   name: 'AddDevice',
   data() {
@@ -93,16 +109,12 @@ export default {
         const _asSender = this.device.type === 'Sender'
         const _asReceiver = this.device.type === 'Receiver'
         const _status = true
-        if (!window.ethereum) {
-          throw new Error('MetaMask not installed')
-        }
-        const provider = new BrowserProvider(window.ethereum)
-        const signer = await provider.getSigner()
-        const contract = new ethers.Contract(IOTContractMonitoring.address, IOTContractMonitoring.abi, signer)
-        const tx = await contract.setIoTAuthorization(_account, _asSender, _asReceiver, _status)
-        console.log("setIoTAuthorization transaction hash:", tx.hash)
-        await tx.wait()
-        console.log("setIoTAuthorization transaction confirmed")
+        await axios.post('http://localhost:3001/api/blockchain/authorize-iot', {
+          account: _account,
+          asSender: _asSender,
+          asReceiver: _asReceiver,
+          status: _status,
+        })
         let devices = []
         const storedDevices = localStorage.getItem('devices')
         if (storedDevices) {
@@ -127,4 +139,15 @@ export default {
 </script>
 
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+.page {
+  --accent: #059669;
+  --accent-soft: #d1fae5;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.title {
+  font-family: "Fraunces", "Times New Roman", serif;
+}
 </style>

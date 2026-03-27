@@ -1,54 +1,85 @@
 <template>
-  <div class="max-w-2xl mx-auto mt-8 p-6 bg-white rounded shadow">
-    <h2 class="text-2xl font-semibold mb-6">Product Details</h2>
-    <div v-if="loading" class="mb-4 text-gray-600">
-      Loading Product Details...
-    </div>
-    <div v-else>
-      <div class="mb-6">
-        <p class="mb-2"><strong>ID:</strong> {{ product.id }}</p>
-        <p class="mb-2"><strong>Sender Address:</strong> {{ product.sender }}</p>
-        <p class="mb-2"><strong>Receiver Address:</strong> {{ product.receiver }}</p>
-        <p class="mb-2"><strong>Sent:</strong> {{ product.sent ? 'Yes' : 'No' }}</p>
-        <p class="mb-2"><strong>Received:</strong> {{ product.received ? 'Yes' : 'No' }}</p>
-        <p class="mb-2"><strong>Voided:</strong> {{ product.voided ? 'Yes' : 'No' }}</p>
-        <p v-if="product.description" class="mb-2"><strong>Description:</strong> {{ product.description }}</p>
-      </div>
-      <div class="flex justify-between items-center">
-        <button
-          type="button"
-          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mr-4"
-          @click="handleGenerate"
-        >
-          Generate QR
-        </button>
+  <div class="page min-h-screen bg-gradient-to-br from-amber-50 via-white to-emerald-50 px-4 py-10">
+    <div class="mx-auto max-w-4xl">
+      <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-xs uppercase tracking-[0.35em] text-emerald-600">Product Profile</p>
+          <h2 class="title mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">Product Details</h2>
+          <p class="mt-2 text-sm text-slate-600 sm:text-base">
+            Inspect the blockchain label and generate a QR snapshot.
+          </p>
+        </div>
         <router-link to="/products">
-          <button class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+          <button class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-200 hover:text-emerald-700">
             Back To Products
           </button>
         </router-link>
       </div>
-    </div>
-    <div v-if="product.qrCodeUrl" class="mt-6">
-      <h3 class="text-xl font-semibold mb-2">Your QR Code:</h3>
-      <img :src="product.qrCodeUrl" alt="QR Code" class="border p-2" />
-      <a
-        :href="product.qrCodeUrl"
-        download="qrcode.png"
-        class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      >
-        Download QR Code
-      </a>
-    </div>
-    <div v-if="error" class="mt-4 p-2 bg-red-200 text-red-800 rounded">
-      {{ error }}
+
+      <div class="rounded-2xl border border-emerald-100 bg-white/80 p-6 shadow-xl shadow-emerald-100/60 backdrop-blur sm:p-8">
+        <div v-if="loading" class="text-sm text-slate-500">
+          Loading Product Details...
+        </div>
+        <div v-else class="space-y-6">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">ID</p>
+              <p class="mt-2 text-lg font-semibold text-slate-900">{{ product.id }}</p>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Sender</p>
+              <p class="mt-2 break-all text-sm font-medium text-slate-900">{{ product.sender }}</p>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Receiver</p>
+              <p class="mt-2 break-all text-sm font-medium text-slate-900">{{ product.receiver }}</p>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Status</p>
+              <p class="mt-2 text-sm text-slate-700">Sent: {{ product.sent ? 'Yes' : 'No' }}</p>
+              <p class="text-sm text-slate-700">Received: {{ product.received ? 'Yes' : 'No' }}</p>
+            </div>
+            <div v-if="product.data" class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm sm:col-span-2">
+              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Data</p>
+              <p class="mt-2 break-words text-sm text-slate-700">{{ product.data }}</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              class="inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-200/70 transition hover:bg-emerald-700"
+              @click="handleGenerate"
+            >
+              Generate QR
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="product.qrCodeUrl" class="mt-8 grid gap-4 rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-lg">
+        <div>
+          <h3 class="text-xl font-semibold text-slate-900">Your QR Code</h3>
+          <p class="mt-1 text-sm text-slate-600">Download and share the verified label.</p>
+        </div>
+        <img :src="product.qrCodeUrl" alt="QR Code" class="w-48 rounded-xl border border-slate-200 bg-white p-3 shadow-sm" />
+        <a
+          :href="product.qrCodeUrl"
+          download="qrcode.png"
+          class="inline-flex w-fit items-center justify-center rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+        >
+          Download QR Code
+        </a>
+      </div>
+
+      <div v-if="error" class="mt-6 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        {{ error }}
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ethers, BrowserProvider } from 'ethers'
-import IOTContractMonitoring from '../../IOTContractMonitoring.json'
 import axios from 'axios'
 export default {
   name: 'ProductDetails',
@@ -61,8 +92,7 @@ export default {
         receiver: '',
         sent: false,
         received: false,
-        voided: false,
-        description: '',
+        data: '',
         qrCodeUrl: ''
       },
       loading: false,
@@ -73,20 +103,15 @@ export default {
     this.loading = true
     this.error = ''
     try {
-      if (!window.ethereum) {
-        throw new Error('MetaMask not installed')
-      }
-      const provider = new BrowserProvider(window.ethereum)
-      const contract = new ethers.Contract(IOTContractMonitoring.address, IOTContractMonitoring.abi, provider)
-      const data = await contract.labels(this.id)
+      const response = await axios.get(`http://localhost:3001/api/blockchain/labels/${this.id}`)
+      const data = response.data.label
       this.product = {
-        id: data.id.toString(),
+        id: data.id,
         sender: data.sender,
         receiver: data.receiver,
         sent: data.sent,
         received: data.received,
-        voided: data.voided,
-        description: data.description ? data.description : ''
+        data: data.data || ''
       }
     } catch (err) {
       console.error("Failed to fetch product details:", err)
@@ -110,4 +135,15 @@ export default {
 </script>
 
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+.page {
+  --accent: #059669;
+  --accent-soft: #d1fae5;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.title {
+  font-family: "Fraunces", "Times New Roman", serif;
+}
 </style>

@@ -1,74 +1,52 @@
 <template>
-  <div class="max-w-4xl mx-auto mt-8 p-6 bg-white rounded shadow">
-    <div class="flex justify-between items-center mb-4">
-      <router-link to="/generate-qr">
-        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-          Generate QR Code For Product
-        </button>
-      </router-link>
-      <button @click="connectWallet" class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600">
-        <span v-if="walletAddress">Connected</span>
-        <span v-else>Connect Wallet</span>
-      </button>
+  <div class="page min-h-screen bg-gradient-to-br from-amber-50 via-white to-emerald-50 px-4 py-10">
+    <div class="mx-auto max-w-5xl">
+      <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p class="text-xs uppercase tracking-[0.35em] text-emerald-600">Device Hub</p>
+          <h2 class="title mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">Devices Overview</h2>
+          <p class="mt-2 text-sm text-slate-600 sm:text-base">
+            Keep track of registered devices and jump into details.
+          </p>
+        </div>
+        <router-link to="/generate-qr">
+          <button class="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-300/50 transition hover:bg-slate-800">
+            Generate QR Code For Product
+          </button>
+        </router-link>
+      </div>
+
+      <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white/90 shadow-xl">
+        <table class="min-w-full table-fixed">
+          <thead class="bg-slate-900 text-white">
+            <tr>
+              <th class="w-1/3 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Name</th>
+              <th class="w-1/3 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Type</th>
+              <th class="w-1/3 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Details</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr v-for="device in devices" :key="device.id" class="bg-white/70">
+              <td class="px-4 py-3 text-sm text-slate-700">{{ device.name }}</td>
+              <td class="px-4 py-3 text-sm text-slate-700">{{ device.type }}</td>
+              <td class="px-4 py-3 text-sm text-slate-700">
+                <router-link :to="`/device/${device.id}`">
+                  <button class="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700">
+                    View
+                  </button>
+                </router-link>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div v-if="walletAddress" class="mb-4">
-      <p class="text-lg text-green-600">Wallet connected: {{ walletAddress }}</p>
-    </div>
-    <table class="min-w-full bg-white table-fixed">
-      <thead>
-        <tr>
-          <th class="w-1/3 py-2 px-4 border text-center">Name</th>
-          <th class="w-1/3 py-2 px-4 border text-center">Type</th>
-          <th class="w-1/3 py-2 px-4 border text-center">Details</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="device in devices" :key="device.id">
-          <td class="w-1/3 py-2 px-4 border text-center">{{ device.name }}</td>
-          <td class="w-1/3 py-2 px-4 border text-center">{{ device.type }}</td>
-          <td class="w-1/3 py-2 px-4 border text-center">
-            <router-link :to="`/device/${device.id}`">
-              <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
-                View
-              </button>
-            </router-link>
-          </td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import { useMetaMaskWallet } from "vue-connect-wallet"
-import "vue-connect-wallet/dist/style.css"
-
-const walletAddress = ref("")
-const wallet = useMetaMaskWallet()
-
-const connectWallet = async () => {
-  const result = await wallet.connect()
-  if (Array.isArray(result)) {
-    walletAddress.value = result[0]
-    localStorage.setItem("walletAddress", result[0])
-    console.log("Wallet connected:", result[0])
-  } else {
-    console.error("Error connecting wallet:", result)
-  }
-}
-
-wallet.onAccountsChanged((accounts) => {
-  if (accounts && accounts.length > 0) {
-    walletAddress.value = accounts[0]
-    localStorage.setItem("walletAddress", accounts[0])
-    console.log("Wallet account changed:", accounts[0])
-  } else {
-    walletAddress.value = ""
-    localStorage.removeItem("walletAddress")
-  }
-})
 
 const devices = ref([])
 
@@ -97,23 +75,26 @@ const syncDevices = async () => {
 }
 
 onMounted(async () => {
-  const storedWallet = localStorage.getItem("walletAddress")
-  if (storedWallet) {
-    walletAddress.value = storedWallet
-  }
   await syncDevices()
   await fetchDevices()
 })
 </script>
 
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+.page {
+  --accent: #059669;
+  --accent-soft: #d1fae5;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.title {
+  font-family: "Fraunces", "Times New Roman", serif;
+}
+
 table {
   table-layout: fixed;
   border-collapse: collapse;
-}
-th, td {
-  padding: 0.5rem 1rem;
-  border: 1px solid #d1d5db;
-  text-align: center;
 }
 </style>

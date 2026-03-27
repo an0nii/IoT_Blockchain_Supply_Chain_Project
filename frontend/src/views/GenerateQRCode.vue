@@ -1,74 +1,88 @@
 <template>
-  <div class="max-w-md mx-auto mt-8 p-6 bg-white rounded shadow">
-    <h2 class="text-2xl font-semibold mb-4">Generate Product QR Code</h2>
-    <form @submit.prevent="handleGenerate">
-      <div class="mb-4">
-        <label class="block text-gray-700">Sender Address</label>
-        <input
-          type="text"
-          v-model="senderAddress"
-          class="w-full px-3 py-2 border rounded"
-          placeholder="Enter sender address"
-          required
-        />
+  <div class="page min-h-screen bg-gradient-to-br from-amber-50 via-white to-emerald-50 px-4 py-10">
+    <div class="mx-auto max-w-2xl">
+      <div class="mb-8">
+        <p class="text-xs uppercase tracking-[0.35em] text-emerald-600">QR Studio</p>
+        <h2 class="title mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">Generate Product QR Code</h2>
+        <p class="mt-2 text-sm text-slate-600 sm:text-base">
+          Build a secure QR payload and optionally send it to the contract.
+        </p>
       </div>
-      <div class="mb-4">
-        <label class="block text-gray-700">Receiver Address</label>
-        <input
-          type="text"
-          v-model="reciverAddress"
-          class="w-full px-3 py-2 border rounded"
-          placeholder="Enter receiver address"
-          required
-        />
+
+      <div class="rounded-2xl border border-emerald-100 bg-white/80 shadow-xl shadow-emerald-100/60 backdrop-blur">
+        <form @submit.prevent="handleGenerate" class="space-y-6 p-6 sm:p-8">
+          <div>
+            <label class="text-sm font-medium text-slate-700">Sender Address</label>
+            <input
+              type="text"
+              v-model="senderAddress"
+              class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              placeholder="Enter sender address"
+              required
+            />
+          </div>
+          <div>
+            <label class="text-sm font-medium text-slate-700">Receiver Address</label>
+            <input
+              type="text"
+              v-model="reciverAddress"
+              class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              placeholder="Enter receiver address"
+              required
+            />
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <button
+              type="submit"
+              class="inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-200/70 transition hover:bg-emerald-700"
+            >
+              Generate QR
+            </button>
+            <router-link to="/">
+              <button
+                type="button"
+                class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-emerald-200 hover:text-emerald-700"
+              >
+                Home Page
+              </button>
+            </router-link>
+          </div>
+        </form>
       </div>
-      <div class="flex justify-between items-center">
-        <button
-          type="submit"
-          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+
+      <div v-if="qrCodeUrl" class="mt-8 grid gap-4 rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-lg">
+        <div>
+          <h3 class="text-xl font-semibold text-slate-900">Your QR Code</h3>
+          <p class="mt-1 text-sm text-slate-600">Ready to download or push to the contract.</p>
+        </div>
+        <img :src="qrCodeUrl" alt="QR Code" class="w-48 rounded-xl border border-slate-200 bg-white p-3 shadow-sm" />
+        <a
+          :href="qrCodeUrl"
+          download="qrcode.png"
+          class="inline-flex w-fit items-center justify-center rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
         >
-          Generate QR
-        </button>
-        <router-link to="/">
-          <button
-            type="button"
-            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-          Home Page
-          </button>
-        </router-link>
+          Download QR Code
+        </a>
       </div>
-    </form>
-    <div v-if="qrCodeUrl" class="mt-6">
-      <h3 class="text-xl font-semibold mb-2">Your QR Code:</h3>
-      <img :src="qrCodeUrl" alt="QR Code" class="border p-2" />
-      <a
-        :href="qrCodeUrl"
-        download="qrcode.png"
-        class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      >
-        Download QR Code
-      </a>
-    </div>
-    <div v-if="walletAddress" class="mt-6">
-      <p class="text-lg">Using Wallet: {{ walletAddress }}</p>
-      <button
-        @click="sendToContract"
-        class="mt-4 inline-block bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600"
-      >
-        Send To Contract
-      </button>
-    </div>
-    <div v-if="contractError" class="mt-4 p-2 bg-red-200 text-red-800 rounded">
-      {{ contractError }}
+
+      <div v-if="pendingProductId" class="mt-6">
+        <button
+          @click="sendToContract"
+          class="inline-flex items-center justify-center rounded-full bg-amber-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-amber-200/70 transition hover:bg-amber-600"
+        >
+          Send To Contract
+        </button>
+      </div>
+
+      <div v-if="contractError" class="mt-6 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        {{ contractError }}
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
-import { ethers, BrowserProvider } from 'ethers'
-import IOTContractMonitoring from '../../IOTContractMonitoring.json'
 export default {
   name: 'GenerateQRCode',
   data() {
@@ -76,17 +90,12 @@ export default {
       senderAddress: '',
       reciverAddress: '',
       qrCodeUrl: '',
-      walletAddress: '',
       currentProductId: null,
       pendingProductId: null,
       contractError: ''
     }
   },
   created() {
-    const storedWallet = localStorage.getItem("walletAddress")
-    if (storedWallet) {
-      this.walletAddress = storedWallet
-    }
     if (!localStorage.getItem("currentId")) {
       localStorage.setItem("currentId", 1)
     }
@@ -115,32 +124,27 @@ export default {
     },
     async sendToContract() {
       try {
-        if (!window.ethereum) {
-          throw new Error('MetaMask not installed')
-        }
         this.contractError = ''
         console.log("Sending transaction with parameters:", {
           productId: this.pendingProductId,
           sender: this.senderAddress,
           receiver: this.reciverAddress
         })
-        const provider = new BrowserProvider(window.ethereum)
-        const signer = await provider.getSigner()
-        const contractAddress = IOTContractMonitoring.address
-        const contractABI = IOTContractMonitoring.abi
-        const contract = new ethers.Contract(contractAddress, contractABI, signer)
-        const tx = await contract.createLabel(this.pendingProductId, this.senderAddress, this.reciverAddress)
-        console.log("Transaction hash:", tx.hash)
-        await tx.wait()
-        console.log("Transaction confirmed")
+        const dataPayload = `${this.pendingProductId}||${this.senderAddress}||${this.reciverAddress}`
+        await axios.post('http://localhost:3001/api/blockchain/labels', {
+          labelId: String(this.pendingProductId),
+          sender: this.senderAddress,
+          receiver: this.reciverAddress,
+          data: dataPayload,
+        })
         this.currentProductId = this.pendingProductId
         this.incrementCurrentId()
       } catch (error) {
         console.error("Transaction failed:", error)
-        if (error.message.includes("Sender not authorized")) {
+        if (error?.response?.data?.error?.includes("sender not authorized")) {
           this.contractError = "Transaction failed: sender is not authorized to perform this operation."
         } else {
-          this.contractError = error.message
+          this.contractError = error?.response?.data?.error || error.message
         }
       }
     }
@@ -149,4 +153,15 @@ export default {
 </script>
 
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+.page {
+  --accent: #059669;
+  --accent-soft: #d1fae5;
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+.title {
+  font-family: "Fraunces", "Times New Roman", serif;
+}
 </style>
