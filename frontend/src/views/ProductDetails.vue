@@ -27,11 +27,11 @@
               <p class="mt-2 text-lg font-semibold text-slate-900">{{ product.id }}</p>
             </div>
             <div class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Sender</p>
+              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Sender (User ID/Public Key)</p>
               <p class="mt-2 break-all text-sm font-medium text-slate-900">{{ product.sender }}</p>
             </div>
             <div class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Receiver</p>
+              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Receiver (User ID/Public Key)</p>
               <p class="mt-2 break-all text-sm font-medium text-slate-900">{{ product.receiver }}</p>
             </div>
             <div class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
