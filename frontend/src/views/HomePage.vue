@@ -20,15 +20,19 @@
         <table class="min-w-full table-fixed">
           <thead class="bg-slate-900 text-white">
             <tr>
-              <th class="w-1/3 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Name</th>
-              <th class="w-1/3 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Type</th>
-              <th class="w-1/3 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Details</th>
+              <th class="w-1/5 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Name</th>
+              <th class="w-1/5 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">User ID</th>
+              <th class="w-1/5 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Public Key</th>
+              <th class="w-1/5 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Role</th>
+              <th class="w-1/5 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Details</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             <tr v-for="device in devices" :key="device.id" class="bg-white/70">
               <td class="px-4 py-3 text-sm text-slate-700">{{ device.name }}</td>
-              <td class="px-4 py-3 text-sm text-slate-700">{{ device.type }}</td>
+              <td class="px-4 py-3 text-sm text-slate-700">{{ device.userId }}</td>
+              <td class="px-4 py-3 text-sm text-slate-700">{{ device.publicKey }}</td>
+              <td class="px-4 py-3 text-sm text-slate-700">{{ device.role }}</td>
               <td class="px-4 py-3 text-sm text-slate-700">
                 <router-link :to="`/device/${device.id}`">
                   <button class="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700">

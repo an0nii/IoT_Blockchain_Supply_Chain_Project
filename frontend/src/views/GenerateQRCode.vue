@@ -12,22 +12,22 @@
       <div class="rounded-2xl border border-emerald-100 bg-white/80 shadow-xl shadow-emerald-100/60 backdrop-blur">
         <form @submit.prevent="handleGenerate" class="space-y-6 p-6 sm:p-8">
           <div>
-            <label class="text-sm font-medium text-slate-700">Sender Address</label>
+            <label class="text-sm font-medium text-slate-700">Sender (User ID или Public Key)</label>
             <input
               type="text"
-              v-model="senderAddress"
+              v-model="senderId"
               class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
-              placeholder="Enter sender address"
+              placeholder="Введите User ID или Public Key отправителя"
               required
             />
           </div>
           <div>
-            <label class="text-sm font-medium text-slate-700">Receiver Address</label>
+            <label class="text-sm font-medium text-slate-700">Receiver (User ID или Public Key)</label>
             <input
               type="text"
-              v-model="reciverAddress"
+              v-model="receiverId"
               class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
-              placeholder="Enter receiver address"
+              placeholder="Введите User ID или Public Key получателя"
               required
             />
           </div>
@@ -87,8 +87,8 @@ export default {
   name: 'GenerateQRCode',
   data() {
     return {
-      senderAddress: '',
-      reciverAddress: '',
+      senderId: '',
+      receiverId: '',
       qrCodeUrl: '',
       currentProductId: null,
       pendingProductId: null,
@@ -115,7 +115,7 @@ export default {
       try {
         const productId = this.getCurrentId()
         this.pendingProductId = productId
-        const typedData = `${productId}||${this.senderAddress}||${this.reciverAddress}`
+        const typedData = `${productId}||${this.senderId}||${this.receiverId}`
         const response = await axios.post('http://localhost:3000/api/generate_qr', { data: typedData })
         this.qrCodeUrl = response.data.qrCode
       } catch (error) {
@@ -127,14 +127,14 @@ export default {
         this.contractError = ''
         console.log("Sending transaction with parameters:", {
           productId: this.pendingProductId,
-          sender: this.senderAddress,
-          receiver: this.reciverAddress
+          sender: this.senderId,
+          receiver: this.receiverId
         })
-        const dataPayload = `${this.pendingProductId}||${this.senderAddress}||${this.reciverAddress}`
+        const dataPayload = `${this.pendingProductId}||${this.senderId}||${this.receiverId}`
         await axios.post('http://localhost:3001/api/blockchain/labels', {
           labelId: String(this.pendingProductId),
-          sender: this.senderAddress,
-          receiver: this.reciverAddress,
+          sender: this.senderId,
+          receiver: this.receiverId,
           data: dataPayload,
         })
         this.currentProductId = this.pendingProductId

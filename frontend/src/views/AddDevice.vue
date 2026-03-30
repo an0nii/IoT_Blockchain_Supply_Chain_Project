@@ -16,39 +16,51 @@
 
       <div class="rounded-2xl border border-emerald-100 bg-white/80 shadow-xl shadow-emerald-100/60 backdrop-blur">
         <form @submit.prevent="handleSubmit" class="space-y-6 p-6 sm:p-8">
+
           <div>
             <label class="text-sm font-medium text-slate-700">Device Name</label>
             <input
               type="text"
               v-model="device.name"
               class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
-              placeholder="Type a device name"
+              placeholder="Введите имя устройства"
               required
             />
           </div>
 
           <div>
-            <label class="text-sm font-medium text-slate-700">Device Type</label>
+            <label class="text-sm font-medium text-slate-700">User ID (уникальный идентификатор)</label>
+            <input
+              type="text"
+              v-model="device.userId"
+              class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              placeholder="Уникальный идентификатор пользователя"
+              required
+            />
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-700">Public Key</label>
+            <input
+              type="text"
+              v-model="device.publicKey"
+              class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              placeholder="Публичный ключ устройства"
+              required
+            />
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-700">Role</label>
             <select
-              v-model="device.type"
+              v-model="device.role"
               class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
               required
             >
-              <option value="" disabled selected>Select Device Type</option>
+              <option value="" disabled selected>Выберите роль</option>
               <option value="Sender">Sender</option>
               <option value="Receiver">Receiver</option>
             </select>
-          </div>
-
-          <div>
-            <label class="text-sm font-medium text-slate-700">Device Adress</label>
-            <input
-              type="text"
-              v-model="device.address"
-              class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
-              placeholder="Enter device address"
-              required
-            />
           </div>
 
           <div>
@@ -95,8 +107,9 @@ export default {
     return {
       device: {
         name: '',
-        type: '',
-        address: '',
+        userId: '',
+        publicKey: '',
+        role: '',
         description: ''
       },
       deviceError: '',
@@ -105,29 +118,28 @@ export default {
   methods: {
     async handleSubmit() {
       try {
-        const _account = this.device.address
-        const _asSender = this.device.type === 'Sender'
-        const _asReceiver = this.device.type === 'Receiver'
-        const _status = true
-        await axios.post('http://localhost:3001/api/blockchain/authorize-iot', {
-          account: _account,
-          asSender: _asSender,
-          asReceiver: _asReceiver,
-          status: _status,
-        })
+        // Формируем данные для Hyperledger
+        const payload = {
+          name: this.device.name,
+          userId: this.device.userId,
+          publicKey: this.device.publicKey,
+          role: this.device.role,
+          description: this.device.description,
+        }
+        await axios.post('http://localhost:3001/api/devices/register', payload)
         let devices = []
         const storedDevices = localStorage.getItem('devices')
         if (storedDevices) {
           devices = JSON.parse(storedDevices)
         }
-        const newDevice = { ...this.device, id: Date.now() }
+        const newDevice = { ...payload, id: Date.now() }
         devices.push(newDevice)
         localStorage.setItem('devices', JSON.stringify(devices))
-        console.log('Device added:', newDevice)
         this.device.name = ''
-        this.device.type = ''
-        this.device.address = ''
-        this.device.description = ''        
+        this.device.userId = ''
+        this.device.publicKey = ''
+        this.device.role = ''
+        this.device.description = ''
         this.$router.push('/')
       } catch (error) {
         console.error('Error adding device:', error)

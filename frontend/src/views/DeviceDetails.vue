@@ -24,12 +24,16 @@
               <p class="mt-2 text-lg font-semibold text-slate-900">{{ device.name }}</p>
             </div>
             <div class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Type</p>
-              <p class="mt-2 text-lg font-semibold text-slate-900">{{ device.type }}</p>
+              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">User ID</p>
+              <p class="mt-2 text-lg font-semibold text-slate-900">{{ device.userId }}</p>
             </div>
-            <div class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm sm:col-span-2">
-              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Address</p>
-              <p class="mt-2 break-all text-sm font-medium text-slate-900">{{ device.address }}</p>
+            <div class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Public Key</p>
+              <p class="mt-2 break-all text-sm font-medium text-slate-900">{{ device.publicKey }}</p>
+            </div>
+            <div class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+              <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Role</p>
+              <p class="mt-2 text-lg font-semibold text-slate-900">{{ device.role }}</p>
             </div>
             <div v-if="device.description" class="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm sm:col-span-2">
               <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Description</p>
@@ -129,11 +133,13 @@ export default {
         if (storedProducts) {
           products = JSON.parse(storedProducts)
         }
-        const deviceAddress = this.device.address.trim().toLowerCase();
+        // Фильтрация по userId или publicKey
+        const deviceUserId = (this.device.userId || '').trim().toLowerCase();
+        const devicePublicKey = (this.device.publicKey || '').trim().toLowerCase();
         this.relatedProducts = products.filter(product => {
-          const sender = product.sender.trim().toLowerCase();
-          const receiver = product.receiver.trim().toLowerCase();
-          return sender === deviceAddress || receiver === deviceAddress;
+          const sender = (product.sender || '').trim().toLowerCase();
+          const receiver = (product.receiver || '').trim().toLowerCase();
+          return sender === deviceUserId || receiver === deviceUserId || sender === devicePublicKey || receiver === devicePublicKey;
         })
       } catch (e) {
         this.errorProducts = e.message || "Failed to load related products."

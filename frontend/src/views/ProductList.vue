@@ -25,16 +25,16 @@
           <thead class="bg-slate-900 text-white">
             <tr>
               <th class="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">ID</th>
-              <th class="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Sent</th>
-              <th class="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Received</th>
+              <th class="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Sender (User ID/Public Key)</th>
+              <th class="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Receiver (User ID/Public Key)</th>
               <th class="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">Details</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             <tr v-for="(product, index) in products" :key="index" class="bg-white/70">
               <td class="px-4 py-3 text-sm text-slate-700">{{ product.id }}</td>
-              <td class="px-4 py-3 text-sm text-slate-700">{{ product.sent ? 'Yes' : 'No' }}</td>
-              <td class="px-4 py-3 text-sm text-slate-700">{{ product.received ? 'Yes' : 'No' }}</td>
+              <td class="px-4 py-3 text-sm text-slate-700">{{ product.sender }}</td>
+              <td class="px-4 py-3 text-sm text-slate-700">{{ product.receiver }}</td>
               <td class="px-4 py-3 text-sm text-slate-700">
                 <router-link :to="`/product/${product.id}`">
                   <button class="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700">
