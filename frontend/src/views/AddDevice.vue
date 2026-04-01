@@ -16,51 +16,50 @@
 
       <div class="rounded-2xl border border-emerald-100 bg-white/80 shadow-xl shadow-emerald-100/60 backdrop-blur">
         <form @submit.prevent="handleSubmit" class="space-y-6 p-6 sm:p-8">
-
           <div>
             <label class="text-sm font-medium text-slate-700">Device Name</label>
             <input
               type="text"
               v-model="device.name"
               class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
-              placeholder="Введите имя устройства"
+              placeholder="Type a device name"
               required
             />
           </div>
 
           <div>
-            <label class="text-sm font-medium text-slate-700">User ID (уникальный идентификатор)</label>
-            <input
-              type="text"
-              v-model="device.userId"
-              class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
-              placeholder="Уникальный идентификатор пользователя"
-              required
-            />
-          </div>
-
-          <div>
-            <label class="text-sm font-medium text-slate-700">Public Key</label>
-            <input
-              type="text"
-              v-model="device.publicKey"
-              class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
-              placeholder="Публичный ключ устройства"
-              required
-            />
-          </div>
-
-          <div>
-            <label class="text-sm font-medium text-slate-700">Role</label>
+            <label class="text-sm font-medium text-slate-700">Device Type</label>
             <select
-              v-model="device.role"
+              v-model="device.type"
               class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
               required
             >
-              <option value="" disabled selected>Выберите роль</option>
+              <option value="" disabled selected>Select Device Type</option>
               <option value="Sender">Sender</option>
               <option value="Receiver">Receiver</option>
             </select>
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-700">Device Address</label>
+            <input
+              type="text"
+              v-model="device.address"
+              class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              placeholder="Enter device address"
+              required
+            />
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-700">Fabric X.509 Identity (base64)</label>
+            <input
+              type="text"
+              v-model="device.fabricId"
+              class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              placeholder="base64-encoded x509 identity"
+              required
+            />
           </div>
 
           <div>
@@ -107,10 +106,10 @@ export default {
     return {
       device: {
         name: '',
-        userId: '',
-        publicKey: '',
-        role: '',
-        description: ''
+        type: '',
+        address: '',
+        description: '',
+        fabricId: '',
       },
       deviceError: '',
     }
@@ -118,32 +117,29 @@ export default {
   methods: {
     async handleSubmit() {
       try {
-        // Формируем данные для Hyperledger
-        const payload = {
+        const _asSender = this.device.type === 'Sender'
+        const _asReceiver = this.device.type === 'Receiver'
+
+        await axios.post('http://localhost:3002/api/admin/authorize-device', {
+          account: this.device.fabricId,
+          uuid: this.device.address,
+          asSender: _asSender,
+          asReceiver: _asReceiver,
+          status: true,
+        }, { headers: { 'X-Admin-Key': 'admin-secret-dev' } })
+
+        await axios.post('http://localhost:3000/api/devices', {
           name: this.device.name,
-          userId: this.device.userId,
-          publicKey: this.device.publicKey,
-          role: this.device.role,
+          type: this.device.type.toLowerCase(),
+          address: this.device.address,
           description: this.device.description,
-        }
-        await axios.post('http://localhost:3001/api/devices/register', payload)
-        let devices = []
-        const storedDevices = localStorage.getItem('devices')
-        if (storedDevices) {
-          devices = JSON.parse(storedDevices)
-        }
-        const newDevice = { ...payload, id: Date.now() }
-        devices.push(newDevice)
-        localStorage.setItem('devices', JSON.stringify(devices))
-        this.device.name = ''
-        this.device.userId = ''
-        this.device.publicKey = ''
-        this.device.role = ''
-        this.device.description = ''
+        })
+
+        this.device = { name: '', type: '', address: '', description: '', fabricId: '' }
         this.$router.push('/')
       } catch (error) {
         console.error('Error adding device:', error)
-        this.deviceError = error.message
+        this.deviceError = error?.response?.data?.error || error.message
       }
     },
   },

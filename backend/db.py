@@ -1,3 +1,5 @@
+import os
+
 from flask import Blueprint, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 
@@ -23,7 +25,10 @@ class Device(db.Model):
 
 
 def init_db(app):
-	app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql+psycopg://iotadmin:password@localhost:5432/iotdata"
+	app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+		"DATABASE_URL",
+		"postgresql+psycopg://iotadmin:password@localhost:5432/iotdata",
+	)
 	app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 	db.init_app(app)

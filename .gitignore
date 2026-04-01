@@ -4,6 +4,7 @@ blockchain/cache/
 blockchain/node_modules/
 
 # env
+.env
 blockchain/.env
 backend/.env
 
@@ -12,3 +13,9 @@ backend/.env
 # Python
 __pycache__/
 *.pyc
+
+# Archives
+*.zip
+
+# Local device credentials
+gateway/devices.json

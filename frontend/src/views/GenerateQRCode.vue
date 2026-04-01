@@ -12,25 +12,32 @@
       <div class="rounded-2xl border border-emerald-100 bg-white/80 shadow-xl shadow-emerald-100/60 backdrop-blur">
         <form @submit.prevent="handleGenerate" class="space-y-6 p-6 sm:p-8">
           <div>
-            <label class="text-sm font-medium text-slate-700">Sender (User ID или Public Key)</label>
-            <input
-              type="text"
-              v-model="senderId"
+            <label class="text-sm font-medium text-slate-700">Sender Device</label>
+            <select
+              v-model="senderAddress"
               class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
-              placeholder="Введите User ID или Public Key отправителя"
               required
-            />
+            >
+              <option value="" disabled>Select sender device</option>
+              <option v-for="d in senders" :key="d.id" :value="d.address">
+                {{ d.name }} ({{ d.address }})
+              </option>
+            </select>
           </div>
           <div>
-            <label class="text-sm font-medium text-slate-700">Receiver (User ID или Public Key)</label>
-            <input
-              type="text"
-              v-model="receiverId"
+            <label class="text-sm font-medium text-slate-700">Receiver Device</label>
+            <select
+              v-model="reciverAddress"
               class="mt-2 w-full rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 text-slate-800 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
-              placeholder="Введите User ID или Public Key получателя"
               required
-            />
+            >
+              <option value="" disabled>Select receiver device</option>
+              <option v-for="d in receivers" :key="d.id" :value="d.address">
+                {{ d.name }} ({{ d.address }})
+              </option>
+            </select>
           </div>
+          <div v-if="loadError" class="text-sm text-red-600">{{ loadError }}</div>
           <div class="flex flex-wrap items-center justify-between gap-3">
             <button
               type="submit"
@@ -87,12 +94,15 @@ export default {
   name: 'GenerateQRCode',
   data() {
     return {
-      senderId: '',
-      receiverId: '',
+      senderAddress: '',
+      reciverAddress: '',
       qrCodeUrl: '',
       currentProductId: null,
       pendingProductId: null,
-      contractError: ''
+      contractError: '',
+      loadError: '',
+      senders: [],
+      receivers: [],
     }
   },
   created() {
@@ -100,22 +110,30 @@ export default {
       localStorage.setItem("currentId", 1)
     }
   },
+  async mounted() {
+    try {
+      const res = await axios.get('http://localhost:3000/api/devices')
+      const devices = res.data.devices || []
+      this.senders = devices.filter(d => d.type === 'sender')
+      this.receivers = devices.filter(d => d.type === 'receiver')
+    } catch (e) {
+      this.loadError = 'Failed to load devices'
+    }
+  },
   methods: {
     getCurrentId() {
-      let currentId = localStorage.getItem("currentId")
-      return parseInt(currentId, 10)
+      return parseInt(localStorage.getItem("currentId") || "1", 10)
     },
     incrementCurrentId() {
-      let currentId = this.getCurrentId()
-      currentId++
-      localStorage.setItem("currentId", currentId)
-      return currentId
+      const next = this.getCurrentId() + 1
+      localStorage.setItem("currentId", next)
+      return next
     },
     async handleGenerate() {
       try {
         const productId = this.getCurrentId()
         this.pendingProductId = productId
-        const typedData = `${productId}||${this.senderId}||${this.receiverId}`
+        const typedData = `${productId}||${this.senderAddress}||${this.reciverAddress}`
         const response = await axios.post('http://localhost:3000/api/generate_qr', { data: typedData })
         this.qrCodeUrl = response.data.qrCode
       } catch (error) {
@@ -125,16 +143,11 @@ export default {
     async sendToContract() {
       try {
         this.contractError = ''
-        console.log("Sending transaction with parameters:", {
-          productId: this.pendingProductId,
-          sender: this.senderId,
-          receiver: this.receiverId
-        })
-        const dataPayload = `${this.pendingProductId}||${this.senderId}||${this.receiverId}`
+        const dataPayload = `${this.pendingProductId}||${this.senderAddress}||${this.reciverAddress}`
         await axios.post('http://localhost:3001/api/blockchain/labels', {
           labelId: String(this.pendingProductId),
-          sender: this.senderId,
-          receiver: this.receiverId,
+          sender: this.senderAddress,
+          receiver: this.reciverAddress,
           data: dataPayload,
         })
         this.currentProductId = this.pendingProductId

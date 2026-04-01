@@ -1,0 +1,109 @@
+services:
+
+  # PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    container_name: iot-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=iotadmin
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_DB=iotdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iotadmin -d iotdata"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Dashboard Backend
+  backend:
+    build: ./backend
+    container_name: iot-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg://iotadmin:${POSTGRES_PASSWORD:-password}@postgres:5432/iotdata
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_net
+
+  # Dashboard Blockchain Gateway
+  blockchain-gateway:
+    build: ./backend/blockchain_gateway
+    container_name: iot-blockchain-gateway
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - HTTP_PORT=3001
+      - FABRIC_MSP_ID=Org1MSP
+      - FABRIC_PEER_ENDPOINT=dns:///peer0.org1.example.com:7051
+      - FABRIC_PEER_TLS_CERT_PATH=/crypto/peers/peer0.org1.example.com/tls/ca.crt
+      - FABRIC_TLS_SERVER_NAME=peer0.org1.example.com
+      - FABRIC_CERT_PATH=/crypto/users/Admin@org1.example.com/msp/signcerts/cert.pem
+      # Путь к файлу приватного ключа
+      - FABRIC_KEY_PATH=/crypto/users/Admin@org1.example.com/msp/keystore/a04f36018656876cc039901f6f11324d24aa1d1f31eb196e82e0a1b9f0ccd004_sk
+      - FABRIC_CHANNEL=mychannel
+      - FABRIC_CHAINCODE=iot-supply-chain
+    volumes:
+      - ./fabric-iot/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com:/crypto:ro
+    networks:
+      - fabric_test
+
+  # IoT Gatewa
+  gateway:
+    build: ./gateway
+    container_name: iot-fabric-gateway
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      - GATEWAY_ADDR=:3000
+      - FABRIC_CHANNEL=mychannel
+      - FABRIC_CHAINCODE=iot-supply-chain
+      - FABRIC_PEER_ENDPOINT=dns:///peer0.org1.example.com:7051
+      - FABRIC_GATEWAY_PEER=peer0.org1.example.com
+      - FABRIC_TLS_CERT_PATH=/crypto/peers/peer0.org1.example.com/tls/ca.crt
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+      - ADMIN_MSP_ID=Org1MSP
+      - ADMIN_CERT_PATH=/crypto/users/Admin@org1.example.com/msp/signcerts/cert.pem
+      - ADMIN_KEY_PATH=/crypto/users/Admin@org1.example.com/msp/keystore/
+      - DEVICES_CONFIG=/app/devices.json
+    volumes:
+      - ./fabric-iot/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com:/crypto:ro
+      - ./fabric-iot/fabric-samples/test-network/organizations:/organizations:ro
+      - ./gateway/devices.json:/app/devices.json:ro
+    networks:
+      - fabric_test
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/labels/counter"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Frontend
+  frontend:
+    build: ./frontend
+    container_name: iot-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    driver: bridge
+  fabric_test:
+    external: true
+    name: fabric_test
+
+volumes:
+  postgres_data:

@@ -1,0 +1,16 @@
+[
+  {
+    "apiKey": "sender-device-secret-key-001",
+    "deviceId": "raspberry-sender-01",
+    "mspId": "Org1MSP",
+    "certPath": "/path/to/crypto/peerOrganizations/org1.example.com/users/sender01@org1.example.com/msp/signcerts/cert.pem",
+    "keyPath": "/path/to/crypto/peerOrganizations/org1.example.com/users/sender01@org1.example.com/msp/keystore/"
+  },
+  {
+    "apiKey": "receiver-device-secret-key-002",
+    "deviceId": "raspberry-receiver-02",
+    "mspId": "Org1MSP",
+    "certPath": "/path/to/crypto/peerOrganizations/org1.example.com/users/receiver02@org1.example.com/msp/signcerts/cert.pem",
+    "keyPath": "/path/to/crypto/peerOrganizations/org1.example.com/users/receiver02@org1.example.com/msp/keystore/"
+  }
+]
